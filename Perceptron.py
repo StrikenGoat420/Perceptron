@@ -1,8 +1,11 @@
 import csv
 import numpy as np
 
-def activation_function():
-    print("b")
+def activation_function(sum):
+    #temp
+    if (sum > 0 ):
+        return sum
+    elif return 0
 
 def perceptron(inputs, weights, bias):
     sum = bias
@@ -29,8 +32,10 @@ with open ('test.data', 'r') as f:
 
 train = np.array(train, dtype=None)
 test = np.array(test, dtype=None)
+epochs = 20
 
+for i in range(epochs):
+    train(inputs, target, 0.1)
 
-train(inputs, target, 0.1)
 
 lr = 3
