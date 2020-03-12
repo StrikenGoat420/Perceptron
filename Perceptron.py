@@ -16,13 +16,10 @@ import numpy as np
 
 def perceptron1(inputs, weights, bias):
     sum = bias
-    print("inputs in perceptron1 is " +str(inputs))
-    print("weights in perceptron1 is " +str(weights))
     #len(inputs)-1 because the final element will be the output
     for i in range(len(inputs)-1):
-        sum += weights[i]*2
-        #sum += float(weights[i])*float(inputs[i])
-        #sum += float(weights[i])*float(inputs[i])
+        #weights is a 2d array
+        sum += float(weights[0][i])*float(inputs[i])
     output = activation_function(sum)
     return output
 
@@ -34,13 +31,20 @@ def activation_function(sum):
 
 
 def training (bias, weights, data, lr, epochs):
+    expected = 0
+    if data[-1] == "class-1":
+        expected = 1
+    elif data[-1] == "class-2":
+        expected = 2
+
     for epoch in range(epochs):
         pred = perceptron1(data, weights, 0.2)
-        error = row[-1] - pred
+        print ("class = %d expected = %d predicted = %d" %(data[-1],expected, pred))
+        error = expected - pred
         bias = bias + (lr * error)
-        for i in range(len(data-1)):
-            weights[i] = weights[i] + (lr * error * data[i])
-        print ("%s epochs %s error", epoch, error)
+        for i in range(len(data) - 1):
+            weights[0][i] = float(weights[0][i]) + (float(lr) * float(error) * float(data[i]))
+        print ("epochs = %s error = %s" %(epoch, error))
 
 
 #function to remove class-3 from training and testing set cuz its not needed
@@ -69,7 +73,7 @@ test = clean_list(test)
 bias = 0.2
 weights = np.random.rand(1,4)
 learning_rate = 0.1
-epochs = 20
+epochs = 1
 
 for key, value in enumerate(train):
     data = train[key]
