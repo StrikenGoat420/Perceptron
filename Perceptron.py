@@ -7,8 +7,6 @@ import numpy as np
     The perceptron function is the one containing the actual perceptron algorithm. The output of which
     depends on the activation function.
     # TODO: Normalize our data so all the data is within the range 0 to 1
-            Convert our output to an integer
-            (maybe if output == 0, then print(class 0) and if output == 1 print (class 1))
             Write a proper activation function (gradient descent)
 
     PS: The clean_list function is really badly writted, write it properly when possible
