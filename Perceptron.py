@@ -75,7 +75,7 @@ def training (bias, weights, data, lr, epochs):
         expected = 2
 
     #for epoch in range(epochs):
-    '''everything below till the weights[0][i] will come under the above for loop'''
+    
     pred = prediction(data, weights, bias)
     error = expected - pred
     bias = bias + (lr * error)
