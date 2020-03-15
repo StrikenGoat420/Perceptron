@@ -12,7 +12,46 @@ import numpy as np
             The clean_list function is really badly written, write it properly if possible
 '''
 
-def perceptron1(inputs, weights, bias):
+def perceptron(training_data, testing_data, weights, lr, bias, epochs):
+    correct = 0
+    wrong = 0
+    print ("initial weights are ", end = '')
+    print (weights)
+    for epoch in range(epochs):
+        for key,value in enumerate(training_data):
+            if training_data[key][-1] != 'class-3':
+                data = train[key]
+                weights, bias = training(bias,weights,data,lr,epochs)
+    print("after training weights are ", end = '')
+    print(weights)
+
+    for key,value in enumerate(testing_data):
+        if testing_data[key][-1] != 'class-3':
+            data = testing_data[key]
+            predicted_output = prediction(data, weights, bias)
+            actual_output = testing_data[key][-1]
+            if actual_output == 'class-1':
+                actual_output = 1
+            elif actual_output == 'class-2':
+                actual_output = 2
+            '''change predicted output type to int, making it easier to manage'''
+            print("predicted output is " +str(predicted_output) + " actual output is " +str(actual_output))
+            correct, wrong = accuracy_check(actual_output, predicted_output, correct, wrong)
+
+    total = correct + wrong
+    accuracy = (correct/total)*100
+    print("accuracy for testing data is " +str(accuracy))
+
+
+def accuracy_check (actual_data,predicted, correct, wrong):
+    if actual_data == predicted:
+        correct+= 1
+    else :
+        wrong+= 1
+
+    return correct, wrong
+
+def prediction(inputs, weights, bias):
     sum = bias
     #len(inputs)-1 because the final element will be the output
     for i in range(len(inputs)-1):
@@ -35,24 +74,29 @@ def training (bias, weights, data, lr, epochs):
     elif data[-1] == "class-2":
         expected = 2
 
-    for epoch in range(epochs):
-        pred = perceptron1(data, weights, 0.2)
-        print ("class = %d expected = %d predicted = %d" %(data[-1],expected, pred))
-        error = expected - pred
-        bias = bias + (lr * error)
-        for i in range(len(data) - 1):
-            weights[0][i] = float(weights[0][i]) + (float(lr) * float(error) * float(data[i]))
-        print ("epochs = %s error = %s" %(epoch, error))
+    #for epoch in range(epochs):
+    '''everything below till the weights[0][i] will come under the above for loop'''
+    pred = prediction(data, weights, bias)
+    error = expected - pred
+    bias = bias + (lr * error)
+    for i in range(len(data) - 1):
+        weights[0][i] = float(weights[0][i]) + (float(lr) * float(error) * float(data[i]))
+    #print ("epochs = %s error = %s" %(epoch, error))
+
+    return weights, bias
 
 
 #function to remove class-3 from training and testing set cuz its not needed
 def clean_list(list):
     for key, value in enumerate(list):
         try:
-            if 'class-3' in value:
+            if 'class-3' == list[key][-1]:
+                print('yes')
                 list = list.remove(key)
         except AttributeError and ValueError:
             rando = 0
+    for data in list:
+        print(data)
     return list
 
 
@@ -65,19 +109,21 @@ with open ('test.data', 'r') as f:
 
 train = list(np.array(train, dtype=None))
 test = list(np.array(test, dtype=None))
-train = clean_list(train)
-test = clean_list(test)
 
 bias = 0.2
+#weights = [[0,0,0,0]]
 weights = np.random.rand(1,4)
 learning_rate = 0.1
-epochs = 1
+epochs = 20
 
-for key, value in enumerate(train):
-    data = train[key]
-    training(bias,weights,data, learning_rate, epochs)
-
-#training(inputs, target, 0.1)
-
-
+perceptron(train, test, weights, learning_rate, bias, epochs)
 lr = 3
+
+'''
+some good initial weights are:
+    initial weights are [[0.43428534, 0.31845077, 0.4076814,  0.54488669]]
+    initial_weights = [[0.57982218, 0.40269277, 0.48749287, 0.21941321]]
+    initial_weights = [[1.06158382, -1.42830725,  0.29663148, -0.49281335]]
+    final_weights = [[-0.90130712,  0.77518744,  0.6488506,   0.95299194]]
+
+'''
