@@ -6,6 +6,11 @@ import numpy as np
     the training function, this is where the weight updation will be happening based on the prediction.
     The perceptron function is the one containing the actual perceptron algorithm. The output of which
     depends on the activation function.
+
+    We are using the sigmoid activation function, because ours is a binary classifier. The sigmoid function
+    will give output in the range of 0 to 1. In our case if the output is less then 0.5, prediction will be
+    1 and if the output is more than 0.5 prediction will be 2.
+
     # TODO: Normalize our data so all the data is within the range 0 to 1
             Check if this activation function is fine or not, if not write new one.
             Better way to analyse the output of the perceptron
@@ -34,7 +39,6 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
                 actual_output = 1
             elif actual_output == 'class-2':
                 actual_output = 2
-            '''change predicted output type to int, making it easier to manage'''
             print("predicted output is " +str(predicted_output) + " actual output is " +str(actual_output))
             correct, wrong = accuracy_check(actual_output, predicted_output, correct, wrong)
 
@@ -61,11 +65,12 @@ def prediction(inputs, weights, bias):
     return output
 
 def activation_function(sum):
-    #temporary activation function
-    if (sum > 0 ):
-        return sum
-    else : return 0
-
+    #sigmoid activation function
+    output = 1/(1 + np.exp(-sum))
+    if output <= 0.5:
+        return 1
+    else :
+        return 2
 
 def training (bias, weights, data, lr, epochs):
     expected = 0
@@ -75,7 +80,7 @@ def training (bias, weights, data, lr, epochs):
         expected = 2
 
     #for epoch in range(epochs):
-    
+
     pred = prediction(data, weights, bias)
     error = expected - pred
     bias = bias + (lr * error)
