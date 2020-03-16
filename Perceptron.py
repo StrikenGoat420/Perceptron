@@ -14,17 +14,14 @@ import numpy as np
 
     To find the most discriminatory input parameter, our weight training and activation function will remain
     the same. What we will do is instead of passing all 4 input parameters, we will pass 3 input parameters.
-    This is done by using the pop function of a list to pop coloumn from the training and testing data,
-    once popped, we feed both the data into the perceptron function and analyse the accuracy. The lower
-    the accuracy after removing each parameter, the more important that parameter is, aka more  discriminatory.
-    Weight assignment will not be random, this will lead to a more consistent answer.
+    The lower the accuracy after removing each parameter, the more important that parameter is, aka more
+    discriminatory. Weight assignment will not be random, this will lead to a more consistent answer.
 
     For the multiclass classifier, in the first instance we change all class 1 to class 2. Then run the perceptron
     as a binary perceptron. We then look at the probability of the data being in class 3. This thing is then repeated
     by changing class 1 into class 3, then again look at the probability of the data being in class 2. Then we change
     class 2 into class 3, then look at the probability of the data being in class 1. The one with the highest probability
     will be our final prediction
-
 
     # TODO: Normalize our data so all the data is within the range 0 to 1
             Check if this activation function is fine or not, if not write new one
@@ -42,11 +39,11 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
 
     print ("initial weights are ", end = '')
     print (weights)
+    print ("initial bias is ", end = '')
+    print (bias)
     for epoch in range(epochs):
         for key,value in enumerate(training_data):
-            for i in range(3):
-                if i == 0
-                if training_data[key][-1] != 'class-3':
+            if training_data[key][-1] != 'class-3':
                 if training_data[key][-1] == 'class-1':
                     actual_output = 1
                 elif training_data[key][-1] == 'class-2':
@@ -54,10 +51,13 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
                 data = training_data[key]
 #                pred = prediction (data, weights, bias)
                 weights, bias = training(bias,weights,data,lr,epochs)
-#            weights = initial_weights
 #                print("predicted output is " +str(pred) + " actual output is " +str(actual_output))
 #                correct, wrong = accuracy_check(actual_output, pred, correct, wrong)
 
+    print ("updated weights are ", end = '')
+    print (weights)
+    print ("updated bias is ", end = '')
+    print (bias)
 #    total = correct + wrong
 #    accuracy = (correct/total)*100
 #    print("accuracy for testing data is " +str(accuracy))
@@ -76,7 +76,7 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
                 actual_output = 1
             elif actual_output == 'class-2':
                 actual_output = 2
-            print("predicted output is " +str(predicted_output) + " actual output is " +str(actual_output))
+            #print("predicted output is " +str(predicted_output) + " actual output is " +str(actual_output))
             correct, wrong = accuracy_check(actual_output, predicted_output, correct, wrong)
 
     total = correct + wrong
@@ -122,7 +122,7 @@ def create_newlist(train, test, col):
     new_train = []
     new_test = []
 
-    print("removed col " +str(col))
+    print("remove col " +str(col))
 
     for j in train:
         j = j.tolist()
