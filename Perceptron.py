@@ -60,8 +60,6 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
     for data in train:
         if data[-1] not in outputs:
             outputs.append(data[-1])
-    for o in outputs:
-        print(o)
 
     print ("initial weights are ", end = '')
     print (weights)
