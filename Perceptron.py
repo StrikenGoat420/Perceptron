@@ -31,61 +31,59 @@ import numpy as np
             solution.
 '''
 
+def shorten_list (list, inp):
+
+    if inp == 1:
+        list2 = [v for v in list if v[-1] != "class-3"]
+    elif inp == 2:
+        list2 = [v for v in list if v[-1] != "class-2"]
+    elif inp == 3:
+        list2 = [v for v in list if v[-1] != "class-1"]
+
+    return list2
+
+
 #this is a regular perceptron function, aka binary classifier
 def perceptron(training_data, testing_data, weights, lr, bias, epochs):
     correct = 0
     wrong = 0
+
+    print("To compare class 1 and class 2 ---- press 1")
+    print("To compare class 1 and class 3 ---- press 2")
+    print("To compare class 2 and class 3 ---- press 3")
+
+    user_input = int(input())
+    train = shorten_list(training_data, user_input)
+    test = shorten_list(testing_data, user_input)
+
+    outputs = []
+    for data in train:
+        if data[-1] not in outputs:
+            outputs.append(data[-1])
+    for o in outputs:
+        print(o)
 
     print ("initial weights are ", end = '')
     print (weights)
     print ("initial bias is ", end = '')
     print (bias)
 
-    for data in training_data:
-        if data[-1] == "class-3":
-            data[-1] = "class-2"
-
-
-
     for epoch in range(epochs):
-        for key,value in enumerate(training_data):
-            if training_data[key][-1] == "class-3":
-                print("yes")
-            if training_data[key][-1] != 'class-3':
-                if training_data[key][-1] == 'class-1':
-                    actual_output = 1
-                elif training_data[key][-1] == 'class-2':
-                    actual_output = 2
-                data = training_data[key]
-#                pred = prediction (data, weights, bias)
-                weights, bias = training(bias,weights,data,lr,epochs, 0)
-#                print("predicted output is " +str(pred) + " actual output is " +str(actual_output))
-#                correct, wrong = accuracy_check(actual_output, pred, correct, wrong)
+        for data in train:
+            weights, bias = training(bias,weights,data,lr,epochs, 0, outputs)
 
     print ("updated weights are ", end = '')
     print (weights)
     print ("updated bias is ", end = '')
     print (bias)
-#    total = correct + wrong
-#    accuracy = (correct/total)*100
-#    print("accuracy for testing data is " +str(accuracy))
 
-#    print("----------------------------------------------------------------------")
-
-#    correct = 0
-#    wrong = 0
-
-    for key,value in enumerate(testing_data):
-        if testing_data[key][-1] != 'class-3':
-            data = testing_data[key]
-            predicted_output = prediction(data, weights, bias, 0)
-            actual_output = testing_data[key][-1]
-            if actual_output == 'class-1':
-                actual_output = 1
-            elif actual_output == 'class-2':
-                actual_output = 2
-            #print("predicted output is " +str(predicted_output) + " actual output is " +str(actual_output))
-            correct, wrong = accuracy_check(actual_output, predicted_output, correct, wrong)
+    for data in test:
+        predicted_output = prediction(data, weights, bias, 0)
+        if data[-1] == outputs[0]:
+            actual_output = 1
+        elif data[-1] == outputs[1]:
+            actual_output = 2
+        correct, wrong = accuracy_check(actual_output, predicted_output, correct, wrong)
 
     total = correct + wrong
     accuracy = (correct/total)*100
@@ -262,9 +260,9 @@ def activation_function(sum):
 def training (bias, weights, data, lr, epochs, mode, outputs = []):
 
     if mode == 0:
-        if data[-1] == "class-1":
+        if data[-1] == outputs[0]:
             expected = 1
-        elif data[-1] == "class-2":
+        elif data[-1] == outputs[1]:
             expected = 2
     elif mode == 1:
         if data[-1] == "class-1" or data[-1] == "class-2":
@@ -314,7 +312,7 @@ train = list(np.array(train, dtype=None))
 test = list(np.array(test, dtype=None))
 
 
-#random.shuffle(train)
+random.shuffle(train)
 
 bias = 0.2
 #weights = [[0,0,0,0]]
@@ -322,9 +320,10 @@ weights = np.random.rand(1,4)
 learning_rate = 0.1
 epochs = 20
 
-#perceptron(train, test, weights, learning_rate, bias, epochs)
+perceptron(train, test, weights, learning_rate, bias, epochs)
 #impparameters(train, test, learning_rate, epochs)
-multiclassperceptron(train, test)
+#multiclassperceptron(train, test)
+#shorten_list(train, 1)
 #test_func(train)
 
 
