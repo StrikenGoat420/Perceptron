@@ -52,7 +52,7 @@ def mulperceptron (train, test):
     reg = int(input())
     if reg == 1:
         print("Enter regularization value ")
-        reg_val = int(input())
+        reg_val = float(input())
 
     for epoch in range(epochs):
         for i in range(3):
