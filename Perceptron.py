@@ -47,6 +47,13 @@ def mulperceptron (train, test):
     weights = [[0,0,0,0], [0,0,0,0], [0,0,0,0]]
     bias = [0.1, 0.1,0.1]
     lr = 0.2
+    print("Press 0 if you do not want to do regularization")
+    print("Press 1 if you want to do regularization")
+    reg = int(input())
+    if reg == 1:
+        print("Enter regularization value ")
+        reg_val = int(input())
+
     for epoch in range(epochs):
         for i in range(3):
             new_train = changeclassname(train, i)
@@ -55,7 +62,7 @@ def mulperceptron (train, test):
                 if data[-1] not in outputs:
                     outputs.append(data[-1])
             for data in new_train:
-                weights[i], bias[i] = multraining(bias[i], weights[i], data, lr, outputs)
+                weights[i], bias[i] = multraining(bias[i], weights[i], data, lr, outputs, reg, reg_val)
 
     print("updated weights are ")
     for i in weights:
@@ -101,7 +108,7 @@ def mulpred (inputs, weights, bias):
     output = activation_function(sum)
     return output
 
-def multraining (bias, weights, data, lr, outputs):
+def multraining (bias, weights, data, lr, outputs, reg, val):
     if data[-1] == outputs[0]:
         expected = 1
     elif data[-1] == outputs[1]:
@@ -111,8 +118,10 @@ def multraining (bias, weights, data, lr, outputs):
     error = expected - pred
     bias = bias + (lr * error)
     for i in range(len(data) - 1):
-        weights[i] = float(weights[i]) + (float(lr) * float(error) * float(data[i]))
-        #weights[i] = weights[i] + (expected*float(data[i])) - (2*0.1*weights[i])
+        if reg == 0:
+            weights[i] = float(weights[i]) + (float(lr) * float(error) * float(data[i]))
+        elif reg == 1:
+            weights[i] = weights[i] + (expected*float(data[i])) - (2*val*weights[i])
 
     return weights, bias
 
