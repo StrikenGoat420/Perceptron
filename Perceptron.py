@@ -68,7 +68,7 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
 
     for epoch in range(epochs):
         for data in train:
-            weights, bias = training(bias,weights,data,lr,epochs, 0, outputs)
+            weights, bias = training(bias,weights,data,lr, outputs)
 
     print ("updated weights are ", end = '')
     print (weights)
@@ -76,7 +76,7 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
     print (bias)
 
     for data in test:
-        predicted_output = prediction(data, weights, bias, 0)
+        predicted_output = prediction(data, weights, bias)
         if data[-1] == outputs[0]:
             actual_output = 1
         elif data[-1] == outputs[1]:
@@ -247,74 +247,39 @@ def accuracy_check (actual_data,predicted, correct, wrong):
 
     return correct, wrong
 
-def prediction(inputs, weights, bias, mode):
+def prediction(inputs, weights, bias):
     sum = bias
     #len(inputs)-1 because the final element will be the output
     for i in range(len(inputs)-1):
         #weights is a 2d array
-        if mode == 0:
-            sum += float(weights[0][i])*float(inputs[i])
-        elif mode == 1:
-            sum += float(weights[i])*float(inputs[i])
+        sum += float(weights[0][i])*float(inputs[i])
     output = activation_function(sum)
     return output
 
 
-
-#sigmoid activtation function
 def activation_function(sum):
     #sigmoid activation function
-    print("sum is " +str(sum))
     output = 1/(1 + np.exp(-sum))
-    print("output from sigmoid is " +str(output))
     if output <= 0.5:
         return 1
     else :
         return 2
 
-def training (bias, weights, data, lr, epochs, mode, outputs = []):
+def training (bias, weights, data, lr, outputs = []):
 
-    if mode == 0:
-        if data[-1] == outputs[0]:
-            expected = 1
-        elif data[-1] == outputs[1]:
-            expected = 2
-    elif mode == 1:
-        if data[-1] == "class-1" or data[-1] == "class-2":
-            expected = 1
-        else:
-            expected = 2
-        '''if type(outputs) == list:
-            for i in range(len(outputs)):
-                if data[-1] == outputs[i]:
-                    expected = i
-                    '''
-    #for epoch in range(epochs):
+    if data[-1] == outputs[0]:
+        expected = 1
+    elif data[-1] == outputs[1]:
+        expected = 2
 
-    pred = prediction(data, weights, bias, mode)
+    pred = prediction(data, weights, bias)
     error = expected - pred
     bias = bias + (lr * error)
-    if mode == 0:
-        for i in range(len(data) - 1):
-            weights[0][i] = float(weights[0][i]) + (float(lr) * float(error) * float(data[i]))
-        #print ("epochs = %s error = %s" %(epoch, error))
-    elif mode == 1:
-        '''# TODO: write if statement for weight training. That is for the correct weight, increase the weight by
-                   adding weight += data. decrease the 'wrong' weight by weight -= data
-        '''
-        for i in range(len(data) - 1):
-            weights[i] = float(weights[i]) + (float(lr) * float(error) * float(data[i]))
+    for i in range(len(data) - 1):
+        weights[0][i] = float(weights[0][i]) + (float(lr) * float(error) * float(data[i]))
+
     return weights, bias
 
-def regularisation (data, i):
-    if i == 0:
-        return data*0.01
-    elif i == 1:
-        return data*0.1
-    elif i == 2:
-        return data*0.1
-    elif i == 3:
-        return data*0.1
 # importing data
 with open ('train.data', 'r') as f:
     train = list(csv.reader(f,delimiter=','))
@@ -335,9 +300,9 @@ weights = np.random.rand(1,4)
 learning_rate = 0.1
 epochs = 20
 
-#perceptron(train, test, weights, learning_rate, bias, epochs)
+perceptron(train, test, weights, learning_rate, bias, epochs)
 #impparameters(train, test, learning_rate, epochs)
-multiclassperceptron(train, test)
+#multiclassperceptron(train, test)
 #shorten_list(train, 1)
 #test_func(train)
 
