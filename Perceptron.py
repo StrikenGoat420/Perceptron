@@ -42,6 +42,80 @@ def shorten_list (list, inp):
 
     return list2
 
+def mulperceptron (train, test):
+    epochs = 1000
+    weights = [[0,0,0,0], [0,0,0,0], [0,0,0,0]]
+    bias = [0.1, 0.1,0.1]
+    lr = 0.2
+    for epoch in range(epochs):
+        for i in range(3):
+            new_train = changeclassname(train, i)
+            outputs = []
+            for data in new_train:
+                if data[-1] not in outputs:
+                    outputs.append(data[-1])
+            for data in new_train:
+                weights[i], bias[i] = multraining(bias[i], weights[i], data, lr, outputs)
+
+    print("updated weights are ")
+    for i in weights:
+        print(i)
+
+    correct = 0
+    wrong = 0
+    for data in test:
+        output, correct, wrong = finalpred(data, weights, bias, correct, wrong)
+
+    total = correct + wrong
+    accuracy = (correct/total)*100
+    print("correct is " +str(correct))
+    print("total is "+str(total))
+    print("accuracy is " +str(accuracy))
+
+
+
+def finalpred (test, weights, bias, correct, wrong):
+    sum = [0,0,0]
+    test = list(test)
+
+    for i in range(3):
+        for j in range(len(weights[i])):
+            sum[i] = bias[i]
+            sum[i] += float(test[j])*weights[i][j]
+
+    print(np.argmax(sum) + 1)
+    output = "class-" +str(np.argmax(sum) + 1)
+    if test[-1] == output:
+        correct += 1
+    else :
+        wrong += 1
+
+    return np.argmax(sum), correct, wrong
+
+def mulpred (inputs, weights, bias):
+    sum = bias
+    #len(inputs)-1 because the final element will be the output
+    for i in range(len(inputs)-1):
+        #weights is a 2d array
+        sum += float(weights[i])*float(inputs[i])
+    output = activation_function(sum)
+    return output
+
+def multraining (bias, weights, data, lr, outputs):
+    if data[-1] == outputs[0]:
+        expected = 1
+    elif data[-1] == outputs[1]:
+        expected = 2
+
+    pred = mulpred(data, weights, bias)
+    error = expected - pred
+    bias = bias + (lr * error)
+    for i in range(len(data) - 1):
+        weights[i] = float(weights[i]) + (float(lr) * float(error) * float(data[i]))
+        #weights[i] = weights[i] + (expected*float(data[i])) - (2*0.1*weights[i])
+
+    return weights, bias
+
 
 #this is a regular perceptron function, aka binary classifier
 def perceptron(training_data, testing_data, weights, lr, bias, epochs):
@@ -111,86 +185,6 @@ def changeclassname (input, case):
                 data[-1] = "class-3"
 
     return actual_data
-
-def multiclasstraining(weights, bias, input, outputs, lr):
-    sum = 0
-    for i in range(len(outputs)):
-        if input[-1] == outputs[i]:
-            actual_output = i
-
-    pred = multiclassprediction(weights, bias, input, 0)
-    print("prediction is " +str(pred))
-    print("Actual is " +str(actual_output))
-    error = actual_output - pred
-    bias = bias + (lr * error)
-    if error != 0:
-        for i in range(len(input) - 1):
-            weights[i] = (float(weights[i])*(1-(2*0.1*lr))) + (error*float(input[i])*lr)
-
-    print("-------------------")
-
-    return weights, bias
-
-def multiclassprediction(weights, bias, data, mode):
-    outputs = []
-    prediction = 0
-    if mode == 0:
-        for i in range(len(data) - 1):
-            sum = 0
-            sum += weights[i] * float(data[i])
-        prediction = activation_function(sum)
-    elif mode == 1:
-        for i in range(len(weights)):
-            sum = 0
-            for j in range(len(data) - 1):
-                sum += weights[i][j]*float(data[j])+bias[i]
-            outputs.append(sum)
-        prediction = np.argmax(outputs) + 1
-    return prediction
-
-def multiclassperceptron (train, test):
-    #3 sets of weights for each case
-    weights = [[0,0,0,0], [0,0,0,0], [0,0,0,0]]
-    bias = [0.2, 0.2, 0.2]
-    lr = 0.1
-    epochs = 1
-
-    for i in range(3):
-        outputs = []
-        new_train = changeclassname(train, i)
-        random.shuffle(new_train)
-        for data in new_train:
-            if data[-1] not in outputs:
-                outputs.append(data[-1])
-
-        for epoch in range(epochs):
-            for data in new_train:
-                weights[i], bias[i] = multiclasstraining(weights[i], bias[i], data, outputs, 0.2)
-
-        print(str(i) +" iter done")
-        print("--------------------------------------------------------------------------------------------------")
-
-    correct  = 0
-    wrong = 0
-    for data in test:
-        output = multiclassprediction(weights, bias, data, 1)
-        if data[-1] == "class-1":
-            expected = 1
-        elif data[-1] == "class-2":
-            expected = 2
-        elif data[-1] == "class-3":
-            expected = 3
-        #print("actual is " +str(expected) + " predicted is " +str(output))
-        if output == expected:
-            correct+=1
-        else:
-            wrong += 1
-
-    total = correct + wrong
-    print ("accuracy is ")
-    accuracy = (correct/total)*100
-    print(str(accuracy))
-
 
 
 #function to create new list, by removing one input parameter at a time. Used to find
@@ -266,7 +260,6 @@ def activation_function(sum):
         return 2
 
 def training (bias, weights, data, lr, outputs = []):
-
     if data[-1] == outputs[0]:
         expected = 1
     elif data[-1] == outputs[1]:
@@ -300,18 +293,17 @@ weights = np.random.rand(1,4)
 learning_rate = 0.1
 epochs = 20
 
-perceptron(train, test, weights, learning_rate, bias, epochs)
-#impparameters(train, test, learning_rate, epochs)
-#multiclassperceptron(train, test)
-#shorten_list(train, 1)
-#test_func(train)
+resume = True
 
-
-'''
-some good initial weights are:
-    initial weights are [[0.43428534, 0.31845077, 0.4076814,  0.54488669]]
-    initial_weights = [[0.57982218, 0.40269277, 0.48749287, 0.21941321]]
-    initial_weights = [[1.06158382, -1.42830725,  0.29663148, -0.49281335]]
-    final_weights = [[-0.90130712,  0.77518744,  0.6488506,   0.95299194]]
-
-'''
+while resume:
+    print()
+    print("For Binary Perceptron ------ press 1")
+    print("For Multiclass Perceptron -- press 2")
+    print("To exit press anything else")
+    choice = input()
+    if choice == '1':
+        perceptron(train, test, weights, learning_rate, bias, epochs)
+    elif choice == '2':
+        mulperceptron(train, test)
+    else:
+        resume = False
