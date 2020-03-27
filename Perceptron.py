@@ -118,22 +118,34 @@ def multiclasstraining(weights, bias, input, outputs, lr):
         if input[-1] == outputs[i]:
             actual_output = i
 
-    pred = multiclassprediction(data, weights, bias)
+    pred = multiclassprediction(weights, bias, input, 0)
+    print("prediction is " +str(pred))
+    print("Actual is " +str(actual_output))
     error = actual_output - pred
     bias = bias + (lr * error)
-    for i in range(len(input[-1])):
-        weights[i] = float(weights[i]) + (float(lr) * float(error) * float(data[i]))
+    if error != 0:
+        for i in range(len(input) - 1):
+            weights[i] = (float(weights[i])*(1-(2*0.1*lr))) + (error*float(input[i])*lr)
 
-def multiclassprediction(weights, bias, data):
+    print("-------------------")
+
+    return weights, bias
+
+def multiclassprediction(weights, bias, data, mode):
     outputs = []
     prediction = 0
-    for i in range(len(weights)):
-        sum = 0
-        for j in range(len(data) - 1):
-            sum += weights[i][j]*float(data[j])+bias[i]
-        outputs.append(sum)
-
-    prediction = np.argmax(outputs) + 1
+    if mode == 0:
+        for i in range(len(data) - 1):
+            sum = 0
+            sum += weights[i] * float(data[i])
+        prediction = activation_function(sum)
+    elif mode == 1:
+        for i in range(len(weights)):
+            sum = 0
+            for j in range(len(data) - 1):
+                sum += weights[i][j]*float(data[j])+bias[i]
+            outputs.append(sum)
+        prediction = np.argmax(outputs) + 1
     return prediction
 
 def multiclassperceptron (train, test):
@@ -141,7 +153,7 @@ def multiclassperceptron (train, test):
     weights = [[0,0,0,0], [0,0,0,0], [0,0,0,0]]
     bias = [0.2, 0.2, 0.2]
     lr = 0.1
-    epochs = 1000
+    epochs = 1
 
     for i in range(3):
         outputs = []
@@ -153,19 +165,22 @@ def multiclassperceptron (train, test):
 
         for epoch in range(epochs):
             for data in new_train:
-                weights[i], bias[i] = training(bias[i], weights[i], data, lr, epochs, 1)
+                weights[i], bias[i] = multiclasstraining(weights[i], bias[i], data, outputs, 0.2)
+
+        print(str(i) +" iter done")
+        print("--------------------------------------------------------------------------------------------------")
 
     correct  = 0
     wrong = 0
     for data in test:
-        output = multiclassprediction(weights, bias, data)
+        output = multiclassprediction(weights, bias, data, 1)
         if data[-1] == "class-1":
             expected = 1
         elif data[-1] == "class-2":
             expected = 2
         elif data[-1] == "class-3":
             expected = 3
-        print("actual is " +str(expected) + " predicted is " +str(output))
+        #print("actual is " +str(expected) + " predicted is " +str(output))
         if output == expected:
             correct+=1
         else:
@@ -249,7 +264,9 @@ def prediction(inputs, weights, bias, mode):
 #sigmoid activtation function
 def activation_function(sum):
     #sigmoid activation function
+    print("sum is " +str(sum))
     output = 1/(1 + np.exp(-sum))
+    print("output from sigmoid is " +str(output))
     if output <= 0.5:
         return 1
     else :
@@ -318,9 +335,9 @@ weights = np.random.rand(1,4)
 learning_rate = 0.1
 epochs = 20
 
-perceptron(train, test, weights, learning_rate, bias, epochs)
+#perceptron(train, test, weights, learning_rate, bias, epochs)
 #impparameters(train, test, learning_rate, epochs)
-#multiclassperceptron(train, test)
+multiclassperceptron(train, test)
 #shorten_list(train, 1)
 #test_func(train)
 
