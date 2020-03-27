@@ -3,34 +3,6 @@ import copy
 import random
 import numpy as np
 
-'''The first 4 coloumns are the input and the final coloumn is the desired output.
-    Random weights have been assigned in the main function. Data will go one row at a time into
-    the training function, this is where the weight updation will be happening based on the prediction.
-    The perceptron function is the one containing the actual perceptron algorithm. The output of which
-    depends on the activation function.
-
-    We are using the sigmoid activation function, because ours is a binary classifier. The sigmoid function
-    will give output in the range of 0 to 1. In our case if the output is less then 0.5, prediction will be
-    1 and if the output is more than 0.5 prediction will be 2.
-
-    To find the most discriminatory input parameter, our weight training and activation function will remain
-    the same. What we will do is instead of passing all 4 input parameters, we will pass 3 input parameters.
-    The lower the accuracy after removing each parameter, the more important that parameter is, aka more
-    discriminatory. Weight assignment will not be random, this will lead to a more consistent answer.
-
-    For the multiclass classifier, in the first instance we change all class 1 to class 2. Then run the perceptron
-    as a binary perceptron. We then look at the probability of the data being in class 3. This thing is then repeated
-    by changing class 1 into class 3, then again look at the probability of the data being in class 2. Then we change
-    class 2 into class 3, then look at the probability of the data being in class 1. The one with the highest probability
-    will be our final prediction
-
-    # TODO: Improve accuracy of multiclass classifier
-            Remove the need for user intervention in binary classifier (ie. user need not specify which
-            two classes he/she wants to compare. by default compare all three classes and report accuracy)
-            For most important parameter, return argmax of weights + 1 as well, alongside the implemented
-            solution.
-'''
-
 def shorten_list (list, inp):
 
     if inp == 1:
@@ -44,18 +16,20 @@ def shorten_list (list, inp):
 
 def mulperceptron (train, test):
     epochs = 1000
+    #weights = np.random.rand(3,4)
     weights = [[0,0,0,0], [0,0,0,0], [0,0,0,0]]
-    bias = [0.1, 0.1,0.1]
+    bias = [0.1, 0.1, 0.1]
     lr = 0.2
     print("Press 0 if you do not want to do regularization")
     print("Press 1 if you want to do regularization")
     reg = int(input())
+    reg_val = 0
     if reg == 1:
         print("Enter regularization value ")
         reg_val = float(input())
 
     for epoch in range(epochs):
-        for i in range(3):
+        for i in range(len(weights)):
             new_train = changeclassname(train, i)
             outputs = []
             for data in new_train:
@@ -80,11 +54,9 @@ def mulperceptron (train, test):
     print("accuracy is " +str(accuracy))
 
 
-
 def finalpred (test, weights, bias, correct, wrong):
     sum = [0,0,0]
     test = list(test)
-
     for i in range(3):
         for j in range(len(weights[i])):
             sum[i] = bias[i]
@@ -130,12 +102,13 @@ def multraining (bias, weights, data, lr, outputs, reg, val):
 def perceptron(training_data, testing_data, weights, lr, bias, epochs):
     correct = 0
     wrong = 0
-
+    print("----------------------------------------")
     print("To compare class 1 and class 2 ---- press 1")
     print("To compare class 1 and class 3 ---- press 2")
     print("To compare class 2 and class 3 ---- press 3")
 
     user_input = int(input())
+    print()
     train = shorten_list(training_data, user_input)
     test = shorten_list(testing_data, user_input)
 
@@ -148,6 +121,7 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
     print (weights)
     print ("initial bias is ", end = '')
     print (bias)
+    print()
 
     for epoch in range(epochs):
         for data in train:
@@ -157,6 +131,16 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
     print (weights)
     print ("updated bias is ", end = '')
     print (bias)
+    print()
+
+    if user_input == 1:
+        print("For class 1 and class 2 most important input parameter is " +str(np.argmax(weights[0])+1))
+    elif user_input == 2:
+        print("For class 1 and class 3 most important input parameter is " +str(np.argmax(weights[0])+1))
+    elif user_input == 3:
+        print("For class 2 and class 3 most important input parameter is " +str(np.argmax(weights[0])+1))
+
+
 
     for data in test:
         predicted_output = prediction(data, weights, bias)
@@ -170,16 +154,18 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
     accuracy = (correct/total)*100
     print("accuracy for testing data is " +str(accuracy))
 
+    return accuracy
+
 
 
 def changeclassname (input, case):
     actual_data = copy.deepcopy(input)
     if case == 0:
         for data in actual_data:
-            #isolating class 3
-            #class 2 and 3
-            if data[-1] == "class-1":
-                data[-1] = "class-2"
+            #isolating class 1
+            #class 1 and 3
+            if data[-1] == "class-2":
+                data[-1] = "class-3"
     elif case == 1:
         for data in actual_data:
             #isolating class 2
@@ -188,56 +174,14 @@ def changeclassname (input, case):
                 data[-1] = "class-3"
     elif case == 2:
         for data in actual_data:
-            #isolating class 1
-            #class 1 and 3
-            if data[-1] == "class-2":
-                data[-1] = "class-3"
+            #isolating class 3
+            #class 2 and 3
+            if data[-1] == "class-1":
+                data[-1] = "class-2"
 
     return actual_data
 
 
-#function to create new list, by removing one input parameter at a time. Used to find
-#most imporatant parameter
-def create_newlist(train, test, col):
-    new_train = []
-    new_test = []
-
-    print("remove col " +str(col))
-
-    for j in train:
-        j = j.tolist()
-        j.pop(col)
-        new_train.append(j)
-
-    for j in test:
-        j = j.tolist()
-        j.pop(col)
-        new_test.append(j)
-
-    return new_train, new_test
-
-#this function will tell us which input parameter is the most discriminatory. aka q5
-def impparameters (train, test, lr, epochs):
-    new_train = []
-    new_test = []
-    weights = [[0,0,0,0]]
-    bias = 0.2
-
-    for i in range(4):
-        new_train, new_test = create_newlist(train, test, i)
-        random.shuffle(new_train)
-        random.shuffle(new_test)
-        if i == 0:
-            print("training data consists of x1,x2,x3")
-        elif i == 1:
-            print("training data consists of x0,x2,x3")
-        elif i == 2:
-            print("training data consists of x0,x1,x3")
-        elif i == 3:
-            print("training data consists of x0,x1,x2")
-        perceptron(new_train, new_test, weights, lr, bias, epochs)
-        print('----------------------------')
-        weights = [[0,0,0,0]]
 
 
 
@@ -306,13 +250,16 @@ resume = True
 
 while resume:
     print()
-    print("For Binary Perceptron ------ press 1")
-    print("For Multiclass Perceptron -- press 2")
+    print("For Binary Perceptron ---------------- press 1")
+    print("For Multiclass Perceptron ------------ press 2")
     print("To exit press anything else")
+    print("----------------------------------------------------------------")
     choice = input()
     if choice == '1':
         perceptron(train, test, weights, learning_rate, bias, epochs)
     elif choice == '2':
         mulperceptron(train, test)
+    elif choice == '3':
+        impparameters(train, test, learning_rate, epochs)
     else:
         resume = False
