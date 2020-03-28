@@ -3,6 +3,7 @@ import copy
 import random
 import numpy as np
 
+
 def shorten_list (list, inp):
 
     if inp == 1:
@@ -15,7 +16,7 @@ def shorten_list (list, inp):
     return list2
 
 def mulperceptron (train, test):
-    epochs = 1000
+    epochs = 20
     #weights = np.random.rand(3,4)
     weights = [[0,0,0,0], [0,0,0,0], [0,0,0,0]]
     bias = [0.1, 0.1, 0.1]
@@ -28,20 +29,45 @@ def mulperceptron (train, test):
         print("Enter regularization value ")
         reg_val = float(input())
 
-    for epoch in range(epochs):
-        for i in range(len(weights)):
-            new_train = changeclassname(train, i)
-            outputs = []
-            for data in new_train:
-                if data[-1] not in outputs:
-                    outputs.append(data[-1])
+
+
+
+    for i in range(len(weights)):
+        correct = 0
+        wrong = 0
+        new_train = changeclassname(train, i)
+        outputs = []
+        for data in new_train:
+            if data[-1] not in outputs:
+                outputs.append(data[-1])
+        for epoch in range(epochs): #len of weights = 3 and we have 3 train cases as well
             for data in new_train:
                 weights[i], bias[i] = multraining(bias[i], weights[i], data, lr, outputs, reg, reg_val)
+                output = mulpred(data, weights[i], bias[i])
+                if data[-1] == outputs[0]:
+                    expected = 1
+                elif data[-1] == outputs[1]:
+                    expected = 2
+                if output == expected:
+                    correct+=1
+                else:
+                    wrong+=1
 
-    print("updated weights are ")
+        total = correct + wrong
+        accuracy = (correct/total)*100
+        print()
+        if i == 0:
+            a = "training accuracy for class 1 vs rest"
+        elif i == 1:
+            a = "training accuracy for class 2 vs rest"
+        elif i == 2:
+            a = "training accuracy for class 3 vs rest"
+        print(a+ " " +str(accuracy))
+
+    print("\nupdated weights are ")
     for i in weights:
         print(i)
-
+    print()
     correct = 0
     wrong = 0
     for data in test:
@@ -49,8 +75,6 @@ def mulperceptron (train, test):
 
     total = correct + wrong
     accuracy = (correct/total)*100
-    print("correct is " +str(correct))
-    print("total is "+str(total))
     print("accuracy is " +str(accuracy))
 
 
@@ -62,7 +86,7 @@ def finalpred (test, weights, bias, correct, wrong):
             sum[i] = bias[i]
             sum[i] += float(test[j])*weights[i][j]
 
-    print(np.argmax(sum) + 1)
+    #print(np.argmax(sum) + 1)
     output = "class-" +str(np.argmax(sum) + 1)
     if test[-1] == output:
         correct += 1
@@ -75,7 +99,6 @@ def mulpred (inputs, weights, bias):
     sum = bias
     #len(inputs)-1 because the final element will be the output
     for i in range(len(inputs)-1):
-        #weights is a 2d array
         sum += float(weights[i])*float(inputs[i])
     output = activation_function(sum)
     return output
@@ -100,6 +123,7 @@ def multraining (bias, weights, data, lr, outputs, reg, val):
 
 #this is a regular perceptron function, aka binary classifier
 def perceptron(training_data, testing_data, weights, lr, bias, epochs):
+    weights = np.random.rand(1,4)
     correct = 0
     wrong = 0
     print("----------------------------------------")
@@ -126,8 +150,22 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
     for epoch in range(epochs):
         for data in train:
             weights, bias = training(bias,weights,data,lr, outputs)
+            output = prediction(data, weights, bias)
+            if data[-1] == outputs[0]:
+                expected = 1
+            elif data[-1] == outputs[1]:
+                expected = 2
+            if output == expected:
+                correct+=1
+            else:
+                wrong+=1
 
-    print ("updated weights are ", end = '')
+    total = correct + wrong
+    accuracy = (correct/total)*100
+    print("training accuracy is " +str(accuracy))
+
+
+    print ("\nupdated weights are ", end = '')
     print (weights)
     print ("updated bias is ", end = '')
     print (bias)
@@ -141,6 +179,8 @@ def perceptron(training_data, testing_data, weights, lr, bias, epochs):
         print("For class 2 and class 3 most important input parameter is " +str(np.argmax(weights[0])+1))
 
 
+    correct = 0
+    wrong = 0
 
     for data in test:
         predicted_output = prediction(data, weights, bias)
@@ -241,25 +281,15 @@ test = list(np.array(test, dtype=None))
 random.shuffle(train)
 
 bias = 0.2
-#weights = [[0,0,0,0]]
-weights = np.random.rand(1,4)
+weights = [[0,0,0,0]]
+
 learning_rate = 0.1
 epochs = 20
 
-resume = True
-
-while resume:
-    print()
-    print("For Binary Perceptron ---------------- press 1")
-    print("For Multiclass Perceptron ------------ press 2")
-    print("To exit press anything else")
-    print("----------------------------------------------------------------")
-    choice = input()
-    if choice == '1':
-        perceptron(train, test, weights, learning_rate, bias, epochs)
-    elif choice == '2':
-        mulperceptron(train, test)
-    elif choice == '3':
-        impparameters(train, test, learning_rate, epochs)
-    else:
-        resume = False
+print("For binary perceptron ----- press 1")
+print("For multiclass perceptron - press 2")
+choice = int(input())
+if choice == 1:
+    perceptron(train, test, weights, learning_rate, bias, epochs)
+elif choice == 2:
+    mulperceptron(train, test)
